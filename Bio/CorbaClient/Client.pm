@@ -71,11 +71,11 @@ package Bio::CorbaClient::Client;
 use vars qw(@ISA);
 use strict;
 
-use CORBA::ORBit idl => [ 'biocorba.idl' ];
+use CORBA::ORBit idl => [ '../../idl/biocorba.idl' ];
 
-use Bio::Root::RootI;
+use Bio::Root::Root;
 
-@ISA = qw ( Bio::Root::RootI );
+@ISA = qw ( Bio::Root::Root);
 
 sub new { 
     my ( $class, @args ) = @_;
@@ -85,7 +85,7 @@ sub new {
 						     @args);
 
     $self->{'_ior'} = $ior || $self->throw("must provide an ior file to open");
-    $self->{'_idl'} = $idl || 'biocorba.idl';
+    $self->{'_idl'} = $idl || '../../idl/biocorba.idl';
     $self->{'_orbname'} = $orbname || 'orbit-local-orb';
     
     my $orb = CORBA::ORB_init($orbname);
