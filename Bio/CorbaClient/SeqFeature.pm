@@ -159,12 +159,14 @@ sub has_tag{
 
 sub all_tags{
     my $self = shift;
-    my $quals = $self->corbaref->qualifiers();    
-    return () unless defined $quals;
-    my @tags;    
-    foreach my $qual ( @$quals ) {
-	push @tags, $qual->{name};
+    my ($annlist,$iter) = $self->corbaref->get_annotations->get_annotations();    
+
+    my @tags;
+    foreach my $ann ( @{$annlist} ) {
+      push(@tags,$ann->get_name());
     }
+
+
     return @tags;
 }
 
