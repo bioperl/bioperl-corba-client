@@ -83,14 +83,8 @@ $NumQualsToFetch = 50;
 
 sub sub_SeqFeature {
     my $self = shift;
-    my @array;
-    my $vector = $self->corbaref->sub_SeqFeatures(1);
-    my $iter = $vector->iterator();
-    while( $iter->has_more ) {
-	push @array, new Bio::CorbaClient::SeqFeature('-corbref' => 
-						      $iter->next);
-    }
-    return @array;
+    # not Sub SeqFeatures supported
+    return ();
 }
 
 =head2 primary_tag
@@ -182,19 +176,27 @@ sub _fetch_qualifiers {
    my ($annlist,$iter);
    ($annlist,$iter) = $self->corbaref->get_annotations->get_annotations($NumQualsToFetch, $iter);    
    foreach my $ann ( @$annlist ) {
-      push(@{$self->{'_annlist'}},$ann);
-    }
+       push(@{$self->{'_annlist'}},$ann);
+   }
+   
+   # iterate through the rest
+   my $ref;
+   my $ret = 1;
+   while( defined $iter && $ret ) {
+       ($ret,$ref) = $iter->next();
+       last unless ( $ret );
+       push(@{$self->{'_annlist'}},$ref)
+   }
    return @{$self->{'_annlist'}};
 }
 
 =head2 each_tag_value
 
  Title   : each_tag_value
- Usage   :
- Function:
- Example :
- Returns : 
- Args    :
+ Usage   : my @val = $self->each_tag_value($tag);
+ Function: returns the list of values associated with a tag
+ Returns : List of strings
+ Args    : tag string  
 
 
 =cut
@@ -258,14 +260,14 @@ sub create_Bioperl_location_from_BSANE_location {
     my $type = 'Bio::Location::Simple';
     my @args;
 
-    # WHAT ABOUT STRAND and EXTENSION
 
     foreach my $pl ( qw(start end) ) {
 	my $p = $bsaneloc->{'seq_location'}->{$pl};
 	push @args, 
-	( "-$pl" => $p->{'position'},
+	( "-$pl"      => $p->{'position'},
 	  "-$pl\_ext" => $p->{'extension'},# if this is zero no worries
 	  "-$pl\_fuz" => $p->{'fuzzy'},	   # if this is 1 or 'EXACT' no worries
+	  "-strand"   => $p->{'strand'},
 	  );
 	if( $p->{'fuzzy'} > 1 || $p->{'extension'} > 0 ) {
 	    $type = 'Bio::Location::Fuzzy';
@@ -351,49 +353,7 @@ sub length {
 sub strand {
    my ($self) = @_;
    return $self->location->strand();
-    #print STDERR "Client $location from biocorba... with ",$location->start," ",$location->end,"]\n";
-}
-
-sub _create_location_from_biocorba_loc {
-    my ($locationhash) = @_;
-    my ($startp, $startext, 
-	$startfuzzy) = ( $locationhash->{'start'}->{'position'},
-			 $locationhash->{'start'}->{'extension'},
-			 $locationhash->{'start'}->{'fuzzy'},
-			 );
-    my ($endp, $endext, 
-	$endfuzzy) = ( $locationhash->{'end'}->{'position'},
-		       $locationhash->{'end'}->{'extension'},
-		       $locationhash->{'end'}->{'fuzzy'},
-		       );
-    my $type = 'Bio::Location::Simple';
-    if( $startfuzzy != 1 || $endfuzzy != 1 ) {
-	$type = 'Bio::Location::Fuzzy';
-    }
-    
-    return $type->new('-start' => &_get_point_string($startp,
-						     $startext,
-						     $startfuzzy),
-		      '-end'   =>  &_get_point_string($endp,
-							   $endext,
-						      $endfuzzy),
-		      '-strand' => $locationhash->{'strand'} );
-}
-
-sub _get_point_string {
-    my ($start,$ext,$fuzzy) = @_;
-    
-    if( $fuzzy == 2 ) {
-	return sprintf("%s.%s", $start, $start+$ext);
-    } elsif( $fuzzy == 3 ) {
-	return sprintf("%s^%s", $start, $start+$ext);
-    } elsif( $fuzzy == 4 ) {
-	return sprintf("<%s",$start);
-    } elsif( $fuzzy == 5 ) {
-	return sprintf("%s>",$start);
-    } else { 
-	return $start;
-    }
+   #print STDERR "Client $location from biocorba... with ",$location->start," ",$location->end,"]\n";
 }
 
 1;

@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::CorbaClient::SeqDB
 #
@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::CorbaClient::SeqDB - DESCRIPTION of Object
+Bio::CorbaClient::SeqDB - Bioperl Sequence Database wrapper around BioCORBA object.
 
 =head1 SYNOPSIS
 
@@ -63,14 +63,14 @@ use vars qw(@ISA);
 use strict;
 use Bio::CorbaClient::Seq;
 use Bio::DB::SeqI;
-
-# Object preamble - inherits from Bio::Root::RootI
-
 use Bio::CorbaClient::Base;
+
+# implements the Bio::DB::SeqI interface
+
 @ISA = qw(Bio::CorbaClient::Base Bio::DB::SeqI);
 
 
-# new() can be inherited from Bio::Root::RootI
+# new() inherited from Bio::CorbaClient::Base
 
 =head2 get_Seq_by_id
 
@@ -203,3 +203,5 @@ sub get_Seq_by_primary_id {
 
    return $self->get_Seq_by_acc($id);
 }
+
+1;

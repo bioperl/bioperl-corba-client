@@ -47,7 +47,7 @@ or the web:
 =head1 AUTHOR - Ewan Birney, Jason Stajich
 
 Email birney@ebi.ac.uk
-      jason@chg.mc.duke.edu
+      jason@bioperl.org
 
 Describe contact details here
 
@@ -59,13 +59,16 @@ methods. Internal methods are usually preceded with a _
 =cut
 
 package Bio::CorbaClient::Seq;
-use vars qw(@ISA);
+use vars qw(@ISA $NumFeaturesToFetch);
 use strict;
 
 use Bio::CorbaClient::PrimarySeq;
 use Bio::CorbaClient::SeqFeature;
 use Bio::SeqI;
 
+BEGIN { 
+    $NumFeaturesToFetch = 1000;
+}
 
 @ISA = qw(Bio::CorbaClient::PrimarySeq Bio::SeqI);
 
@@ -82,10 +85,9 @@ use Bio::SeqI;
 
 sub top_SeqFeatures {
     my ($self ) = @_;
-   
     my $coll   = $self->corbaref->get_seq_features();
     my ($iter,$reflist);
-    ($reflist,$iter) = $coll->get_annotations(1000,$iter);
+    ($reflist,$iter) = $coll->get_annotations($NumFeaturesToFetch,$iter);
     my @features;
  
     foreach my $ref ( @{$reflist} ) {
@@ -94,11 +96,9 @@ sub top_SeqFeatures {
 
     my $ref;
     my $ret = 1;
-    while( $ret ) {
-        ($ret,$ref) = $iter->next();
-        if( $ret == 0 ) {
-           last;
-	 }
+    while( defined $iter && $ret ) {
+	($ret,$ref) = $iter->next();
+	last unless ( $ret );
 	push @features, new Bio::CorbaClient::SeqFeature('-corbaref'=>$ref);
     }
     return @features;
@@ -108,8 +108,7 @@ sub top_SeqFeatures {
 
  Title   : all_SeqFeatures
  Usage   : $seq->all_SeqFeatures
- Function:
- Example :
+ Function: Returns list of features associated with the sequence
  Returns : array of all features (descending into each sub feature)
  Args    : 
 
@@ -151,11 +150,26 @@ sub primary_seq {
 sub feature_count {
     my ($self) = @_;
     my $count = 0;
-    my $vector = $self->corbaref->SeqFeatures(1);
-    my $iter = $vector->iterator;
-    while( $iter->has_more ) {
-	$count++;
-    }
+    my $coll   = $self->corbaref->get_seq_features();
+    my $wholeseqloc = { 
+	'seq_location' => {
+	    'start' => {
+		'position'  => 1,
+		'extension' => 0,
+		'fuzzy'     => 0,
+	    },
+	    'end'   => {
+		'position'  => $self->length,
+		'extension' => 0,
+		'fuzzy'     => 0,
+	    },
+	    'strand' => 1,
+	},
+	'region_operator'   => '0',
+	'sub_seq_locations' => [],
+	'id'                => '',
+    };
+    my $count = $coll->num_features_on_region($wholeseqloc);    
     return $count;
 }
 
