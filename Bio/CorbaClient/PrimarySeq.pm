@@ -70,6 +70,16 @@ use Bio::PrimarySeqI;
 
 @ISA = qw(Bio::CorbaClient::Base Bio::PrimarySeqI);
 
+=head2 seq
+
+ Title   : seq
+ Usage   : $seq = $seq->seq
+ Function:
+ Example :
+ Returns : sequence string for this Sequence
+ Args    :
+
+=cut
 
 sub seq {
     my ($self,$val ) = @_;
@@ -80,11 +90,33 @@ sub seq {
     return $self->corbaref->get_seq();
 }
 
+=head2 subseq
+
+ Title   : subseq
+ Usage   : $seq = $seq->subseq($begin,$end)
+ Function:
+ Example :
+ Returns : sub-sequence string for this Sequence
+ Args    : $begin, $end indexes to extract seq
+
+=cut
+
 sub subseq {
     my($self,$start,$end) = @_;
 
     return $self->corbaref->get_subseq($start,$end);
 }
+
+=head2 display_id
+
+ Title   : display_id
+ Usage   : $seq->display_id
+ Function:
+ Example :
+ Returns : display id for the sequence
+ Args    : 
+
+=cut
 
 sub display_id {
     my ($self,$val ) = @_;
@@ -95,6 +127,16 @@ sub display_id {
     return $self->corbaref->display_id();
 }
 
+=head2 accession_number
+
+ Title   : accession_number
+ Usage   : $seq->accession_number
+ Function:
+ Example :
+ Returns : accession number for the sequence
+ Args    : 
+
+=cut
 
 sub accession_number {
     my ($self,$val ) = @_;
@@ -105,6 +147,16 @@ sub accession_number {
     return $self->corbaref->accession_number();
 }
 
+=head2 display_id
+
+ Title   : display_id
+ Usage   : $seq->display_id
+ Function:
+ Example :
+ Returns : display id for the sequence
+ Args    : 
+
+=cut
 
 sub primary_id {
     my ($self,$val ) = @_;
@@ -118,6 +170,17 @@ sub primary_id {
 sub can_call_new {
     return 0;
 }
+
+=head2 moltype
+
+ Title   : moltype
+ Usage   : $seq->moltype
+ Function:
+ Example :
+ Returns : type of molecular sequence
+ Args    : 
+
+=cut
 
 sub moltype {
     my ($self,$val ) = @_;
