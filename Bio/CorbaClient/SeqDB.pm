@@ -64,6 +64,7 @@ use strict;
 use Bio::CorbaClient::Seq;
 use Bio::DB::SeqI;
 use Bio::CorbaClient::Base;
+use CORBA::ORBit idl => [ 'idl/biocorba.idl' ];
 
 # implements the Bio::DB::SeqI interface
 
@@ -71,6 +72,18 @@ use Bio::CorbaClient::Base;
 
 
 # new() inherited from Bio::CorbaClient::Base
+
+sub new_from_registry {
+    my ($class,%config) = @_;
+    
+    my $orb = CORBA::ORB_init("orbit-local-orb");
+    open(F,$config{'location'});
+    my $ior = <F>;
+    chomp $ior;
+    my $ref = $orb->string_to_object($ior);
+    my $self = $class->SUPER::new('corbaref' => $ref);
+    return $self;
+}
 
 =head2 get_Seq_by_id
 
