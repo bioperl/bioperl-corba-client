@@ -159,15 +159,35 @@ sub has_tag{
 
 sub all_tags{
     my $self = shift;
-    my ($annlist,$iter) = $self->corbaref->get_annotations->get_annotations();    
+
+    my @ann = $self->_fetch_qualifiers();
 
     my @tags;
-    foreach my $ann ( @{$annlist} ) {
-      push(@tags,$ann->get_name());
+    foreach my $ann ( @ann ) {
+      push(@tags,$ann->get_name);
     }
 
-
     return @tags;
+}
+
+sub _fetch_qualifiers {
+   my $self = shift;
+
+   if( defined $self->{'_annlist'} ) {
+      return @{$self->{'_annlist'}};
+   }
+
+   $self->{'_annlist'} = [];
+
+    my ($annlist,$iter) = $self->corbaref->get_annotations->get_annotations();    
+
+
+    foreach my $ann ( @{$annlist} ) {
+      push(@{$self->{'_annlist'}},$ann->get_name());
+    }
+
+   return @{$self->{'_annlist'}};
+
 }
 
 =head2 each_tag_value
@@ -185,15 +205,16 @@ sub all_tags{
 sub each_tag_value{
    my ($self,$tag) = @_;
 
-   my $quals = $self->corbaref->qualifiers();    
-   return () unless defined $quals;
-   
-   foreach my $qual ( @$quals ) {
-       if( $qual->{name} eq $tag ) {
-	   return @{$qual->{values}};
-       }
+   my @ann   = $self->_fetch_qualifiers();
+   my @values;
+
+   foreach my $ann ( @ann ) {
+     if( $ann->get_name eq $tag ) {
+       push(@values,$ann->get_value);
+     }
    }
-   return ();
+
+   return @values;
 }
 
 
@@ -211,20 +232,63 @@ sub location {
     my ($self) = @_;
     my $locations = $self->corbaref->get_locations();
 
-    my $location;
-    if( ! defined $locations || @$locations == 0 ) {
-	#print STDERR "Empty location! [$locations] yikes!\n";
-	$location = new Bio::Location::Simple;
-    } elsif( scalar @$locations > 1 ) {
-	$location = new Bio::Location::Split();
-	foreach my $l ( @$locations ) {
-	    $location->add_sub_Location(&_create_location_from_biocorba_loc($l));
+    my $out;
+
+    my $loc = shift @$locations;
+
+    $out = &create_Bioperl_location_from_BSANE_location($loc);
+
+    return $out;
+}
+
+
+=head2 create_Bioperl_location_from_BSANE_location
+
+ Title   : create_Bioperl_location_from_BSANE_location
+ Usage   : create_Bioperl_location_from_BSANE_location($hashref)
+ Function: Creates a Bio::LocationI from a BSANE hashref SeqFeature location
+ Returns : Bio::LocationI
+ Args    : BSANE hashref SeqFeature location
+
+=cut
+
+my  %SeqFeatureLocationOperator  = ( 'NONE' => 0,
+				     'JOIN' => 1,
+				     'ORDER'=> 2);
+
+sub create_Bioperl_location_from_BSANE_location {
+    my ($bsaneloc) = @_;
+
+    my $type = 'Bio::Location::Simple';
+    my @args;
+
+    # WHAT ABOUT STRAND and EXTENSION
+
+    foreach my $pl ( qw(start end) ) {
+	my $p = $bsaneloc->{'seq_location'}->{$pl};
+	push @args, 
+	( "-$pl" => $p->{'position'},
+	  "-$pl\_ext" => $p->{'extension'},# if this is zero no worries
+	  "-$pl\_fuz" => $p->{'fuzzy'},	   # if this is 1 or 'EXACT' no worries
+	  );
+	if( $p->{'fuzzy'} > 1 || $p->{'extension'} > 0 ) {
+	    $type = 'Bio::Location::Fuzzy';
 	}
-    } else {
-	$location = &_create_location_from_biocorba_loc($locations->[0]);
-    } 
+    }
+
+    my $location = $type->new(@args);
+    if( $bsaneloc->{'region_operator'} > 0 ) { # if it is not A NONE  
+	my $sloc = new Bio::Location::Split
+	    ('-splittype' => $SeqFeatureLocationOperator{$bsaneloc->{'region_operator'}},
+	     '-locations' => [ $location ] );
+	$location = $sloc;
+	foreach my $subloc ( @{$bsaneloc->{'sub_Seq_locations'}} ) {
+	    $location->add_sub_Location(&create_location_from_BSANE_Location($subloc));
+	}
+    }
     return $location;
 }
+
 
 =head2 start
 
