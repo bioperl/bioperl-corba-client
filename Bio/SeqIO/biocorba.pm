@@ -15,8 +15,8 @@
 Bio::SeqIO::biocorba - biocorba seqio
 
 =head1 SYNOPSIS
- 
-   # run a biocorba server somewhere, writing its IOR to a file:
+
+# run a biocorba server somewhere, writing its IOR to a file:
 
    $seqio = Bio::SeqIO->new( '-format' => 'biocorba' , -file => 'biocorba_server.ior' ) ;
    $seqout = Bio::SeqIO->new ('format' => 'fasta',-fh => \* STDOUT);

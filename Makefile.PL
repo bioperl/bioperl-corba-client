@@ -22,12 +22,8 @@ $tline = "show_tests :\n\t\@echo \'type make test_<subtest> to run\'\n\t\@echo '
 
 print STDERR "Generated sub tests. go make show_tests to see available subtests\n";
 
-sub MY::postamble {
-             $tline;
-	 }
+sub MY::postamble { $tline; }
 
-
-				           
 #
 # Talk to Ewan (<birney@sanger.ac.uk>) for more info.
 #
@@ -39,19 +35,21 @@ use ExtUtils::MakeMaker;
 
 $do_autoload_finesse = 0;
 $NAME     = 'Bio';
-$DISTNAME = "bioperl-corba";
-$VERSION  = "0.1";
+$DISTNAME = "bioperl-corba-client";
+$VERSION  = '0.1';
 
 WriteMakefile(
-    NAME	=> $NAME,
-    DISTNAME    => $DISTNAME,
-    VERSION     => $VERSION,
-    'dist'      => {  COMPRESS     => 'gzip -9f',
-                      SUFFIX       => '.gz', 
-                      DIST_DEFAULT => 'all tardist',
-                   },
-    'realclean'  => {  FILES        => join(' ',@BACKUP_FILES) }
-);
+	      NAME	=> $NAME,
+	      DISTNAME    => $DISTNAME,
+	      VERSION     => $VERSION,
+	      NORECURS    => 0,
+	      dist        => {  
+		  COMPRESS     => 'gzip -9f',
+		  SUFFIX       => '.gz', 
+		  DIST_DEFAULT => 'all tardist',
+	      },	      
+	      realclean   => {  FILES        => join(' ',@BACKUP_FILES) }
+	      );
 
 
 sub cleanup {

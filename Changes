@@ -1,0 +1,19 @@
+Revision History for BioCorba::Client modules
+
+0.01    Tue May 22 17:34:47 EDT 2000  
+	- Initial release 
+	- Supports full IDL features.  
+	- Requires Bioperl >= 0.06
+	- Does not catch Corba exceptions or convert them to 
+	  bioperl exceptions at this time.
+	- Tested and compliant with other bio* projects biocorba
+	  code:
+	  Biojava   - fully compliant
+	  Biopython - fully compliant 
+        - Bio::SeqIO to support SeqIO like access to corba SeqDBs 
+	  (next_seq)
+
+        Issues, Known Bugs:
+
+        - Bio::DB::Biocorba for DB like access - might need some more 
+	   looking at.       
