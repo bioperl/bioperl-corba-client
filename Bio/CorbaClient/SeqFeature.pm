@@ -289,7 +289,6 @@ sub strand {
    my ($self) = @_;
    return $self->location->strand();
     #print STDERR "Client $location from biocorba... with ",$location->start," ",$location->end,"]\n";
-    return $location;
 }
 
 sub _create_location_from_biocorba_loc {
