@@ -62,13 +62,15 @@ use strict;
 
 
 use Bio::CorbaClient::Base;
+use Bio::CorbaClient::Seq;
+use Bio::CorbaClient::PrimarySeq;
+use Bio::CorbaClient::PrimarySeqIterator;
 use Bio::DB::SeqI;
 
 @ISA = qw(Bio::CorbaClient::Base Bio::DB::SeqI);
 
 
 =head1 Bio::DB::RandomAccessI Functions not provided by the IDL
-
 
 =head2 get_Seq_by_id
 
@@ -84,7 +86,7 @@ use Bio::DB::SeqI;
 sub get_Seq_by_id {
     my ($self,$id) = shift;    
     my $corbaref = $self->corbaref->get_Seq($id);
-    return Bio::CorbaClient::Seq->new($coraref) if( defined $corbaref );
+    return Bio::CorbaClient::Seq->new($corbaref) if( defined $corbaref );
     throw org::Biocorba::Seqcore::UnableToProcess(reason=>"DB::Biocorba could not find a seq for id=$id\n"); 
     return undef;
 }
@@ -102,8 +104,9 @@ sub get_Seq_by_id {
 
 sub get_Seq_by_acc {
     my ($self,$id) = @_;
+    # can you really get this by acc ?
     my $corbaref = $self->corbaref->get_Seq($id);
-    return Bio::CorbaClient::Seq->new($coraref) if( defined $corbaref );
+    return Bio::CorbaClient::Seq->new($corbaref) if( defined $corbaref );
     throw org::Biocorba::Seqcore::UnableToProcess(reason=>"DB::Biocorba could not find a seq for acc=$id\n"); 
     return undef;
 }
@@ -124,7 +127,7 @@ sub get_Seq_by_acc {
 
 sub get_PrimarySeq_stream{
    my ($self,@args) = @_;   
-# I'm not sure this will work?
+# I'm not sure this will work?  
    return Bio::CorbaClient::PrimarySeqIterator->new
        ($self->corbaref->make_PrimarySeqIterator);
 }
@@ -146,8 +149,13 @@ sub get_PrimarySeq_stream{
 =cut
 
 sub get_all_primary_ids{
-   my ($self,@args) = @_;
-   return $self->corbaref->get_primaryidList();
+    my ($self,@args) = @_;   
+   if( ! $self->corbaref->isa('org::Biocorba::Seqcore::SeqDB')) {
+       $self->throw("This is not a org::Biocorba::Seqcore::SeqDB so get_all_primary_ids is not supported\n");
+       return ();
+   } 
+    my $ids = $self->corbaref->get_primaryidList();
+    return @$ids;
 }
 
 

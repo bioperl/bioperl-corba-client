@@ -64,7 +64,7 @@ The rest of the documentation details each of the object methods. Internal metho
 =cut
 
 
-# Let the code begin...
+#' Let the code begin...
 
 
 package Bio::CorbaClient::Base;
@@ -73,7 +73,6 @@ use strict;
 
 use Bio::Root::RootI;
 
-
 @ISA = qw(Bio::Root::RootI);
 
 sub new {
@@ -81,11 +80,10 @@ sub new {
 
     my $self = {};
     bless $self,$class;
-
     if( defined $corbaref ) {
 	$self->corbaref($corbaref);
     }
-
+    return $self;
 }
 
 =head2 corbaref
@@ -115,6 +113,7 @@ sub DESTROY {
     my $corbaref = $self->corbaref;
     if( !defined $corbaref ) {
 	$self->warn("No corbareference in corbaclient wrapping. Could be leaking memory server-side!");
+	return;
     }
 
     $self->corbaref->unref();
