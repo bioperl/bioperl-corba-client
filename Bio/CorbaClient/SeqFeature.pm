@@ -105,7 +105,7 @@ sub sub_SeqFeature {
 
 sub primary_tag{
     my $self = shift;
-    return $self->corbaref->type;
+    return $self->corbaref->get_name;
 }
 
 =head2 source_tag
@@ -207,7 +207,8 @@ sub each_tag_value{
 
 sub location {
     my ($self) = @_;
-    my $locations = $self->corbaref->locations();
+    my $locations = $self->corbaref->get_locations();
+
     my $location;
     if( ! defined $locations || @$locations == 0 ) {
 	#print STDERR "Empty location! [$locations] yikes!\n";

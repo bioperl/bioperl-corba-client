@@ -87,9 +87,17 @@ use Bio::CorbaClient::Base;
 sub get_Seq_by_id {
     my $self = shift;
     my $acc  = shift;
-
-    my $seq = Bio::CorbaClient::Seq->new(-corbaref => $self->corbaref->resolve($acc,0));
     
+    my $seq;
+    eval {
+      $seq = Bio::CorbaClient::Seq->new(-corbaref => $self->corbaref->resolve($acc,0));
+    };
+
+    if( $@ ) {
+      $self->warn("Sequence $acc was not returned from the CORBA server. The original CORBA exception was $@");
+      return undef;
+    }
+
     return $seq;
 }
 
@@ -110,7 +118,16 @@ sub get_Seq_by_acc {
     my $self = shift;
     my $acc  = shift;
 
-    my $seq = Bio::CorbaClient::Seq->new(-corbaref => $self->corbaref->resolve($acc,0));
+    my $seq;
+    eval {
+      $seq = Bio::CorbaClient::Seq->new(-corbaref => $self->corbaref->resolve($acc,0));
+    };
+
+    if( $@ ) {
+      $self->warn("Sequence $acc was not returned from the CORBA server. The original CORBA exception was $@");
+      return undef;
+    }
+
     
     return $seq;
 }
