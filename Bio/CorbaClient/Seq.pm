@@ -84,9 +84,8 @@ sub top_SeqFeatures {
     my ($self ) = @_;
    
     my $coll   = $self->corbaref->get_seq_features();
-    my $iter;
-
-    my ($reflist,$iter) = $coll->get_annotations(1000,$iter);
+    my ($iter,$reflist);
+    ($reflist,$iter) = $coll->get_annotations(1000,$iter);
     my @features;
  
     foreach my $ref ( @{$reflist} ) {
