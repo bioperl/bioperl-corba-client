@@ -168,9 +168,6 @@ sub all_tags{
     return @tags;
 }
 
-<<<<<<< SeqFeature.pm
-
-=======
 =head2 each_tag_value
 
  Title   : each_tag_value
