@@ -59,7 +59,7 @@ methods. Internal methods are usually preceded with a _
 =cut
 
 package Bio::CorbaClient::SeqFeature;
-use vars qw(@ISA);
+use vars qw(@ISA $NumQualsToFetch);
 use strict;
 
 use Bio::CorbaClient::Base;
@@ -68,6 +68,7 @@ use Bio::Location::Split;
 use Bio::Location::Fuzzy;
 use Bio::Location::Simple;
 
+$NumQualsToFetch = 50;
 @ISA = qw(Bio::CorbaClient::Base Bio::SeqFeatureI);
 
 =head2 sub_SeqFeature
@@ -137,7 +138,7 @@ sub source_tag{
 
 sub has_tag{
     my ($self,$tag) = @_;
-    my @quals = $self->corbaref->qualifiers();
+    my @quals = $self->_fetch_qualifiers();
     $tag = uc $tag;
     foreach my $qual (@quals ) {
 	if( uc($qual) eq $tag ) {
@@ -161,7 +162,7 @@ sub all_tags{
     my $self = shift;
 
     my @ann = $self->_fetch_qualifiers();
-
+    
     my @tags;
     foreach my $ann ( @ann ) {
       push(@tags,$ann->get_name);
@@ -178,16 +179,12 @@ sub _fetch_qualifiers {
    }
 
    $self->{'_annlist'} = [];
-
-    my ($annlist,$iter) = $self->corbaref->get_annotations->get_annotations();    
-
-
-    foreach my $ann ( @{$annlist} ) {
-      push(@{$self->{'_annlist'}},$ann->get_name());
+   my ($annlist,$iter);
+   ($annlist,$iter) = $self->corbaref->get_annotations->get_annotations($NumQualsToFetch, $iter);    
+   foreach my $ann ( @$annlist ) {
+      push(@{$self->{'_annlist'}},$ann);
     }
-
    return @{$self->{'_annlist'}};
-
 }
 
 =head2 each_tag_value
@@ -209,11 +206,10 @@ sub each_tag_value{
    my @values;
 
    foreach my $ann ( @ann ) {
-     if( $ann->get_name eq $tag ) {
-       push(@values,$ann->get_value);
-     }
+       if( $ann->get_name eq $tag ) {
+	   push(@values,$ann->get_value->[1]);
+       }
    }
-
    return @values;
 }
 
