@@ -2,6 +2,7 @@ Makefile.PL
 Changes
 MANIFEST
 README
+biocorba.idl
 Bio/CorbaClient/Base.pm
 Bio/CorbaClient/ORB.pm
 Bio/CorbaClient/PrimarySeq.pm
