@@ -168,6 +168,9 @@ sub all_tags{
     return @tags;
 }
 
+<<<<<<< SeqFeature.pm
+
+=======
 =head2 each_tag_value
 
  Title   : each_tag_value
@@ -220,14 +223,80 @@ sub location {
     } else {
 	$location = &_create_location_from_biocorba_loc($locations->[0]);
     } 
-    #print STDERR "Client $location from biocorba... with ",$location->start," ",$location->end,"]\n";
+    return $location;
+}
 
+=head2 start
+
+ Title   : start
+ Usage   : $start = $feat->start
+           $feat->start(20)
+ Function: Get the start coordinate of the feature
+ Returns : integer
+ Args    : none
+
+
+=cut
+
+sub start {
+   my ($self) = @_;
+   return $self->location->start();
+}
+
+=head2 end
+
+ Title   : end
+ Usage   : $end = $feat->end
+           $feat->end($end)
+ Function: Get the end coordinate of the feature
+ Returns : integer
+ Args    : none
+
+
+=cut
+
+sub end {
+   my ($self) = @_;
+   return $self->location->end();
+}
+
+=head2 length
+
+ Title   : length
+ Usage   : my $len = $self->length()
+ Function: returns the length of the feature
+ Returns : integer
+ Args    : none
+
+
+=cut
+
+sub length {
+   my ($self) = @_;
+   return $self->end - $self->start() + 1;
+}
+
+=head2 strand
+
+ Title   : strand
+ Usage   : $strand = $feat->strand()
+           $feat->strand($strand)
+ Function: get/set on strand information, being 1,-1 or 0
+ Returns : -1,1 or 0
+ Args    : none
+
+
+=cut
+
+sub strand {
+   my ($self) = @_;
+   return $self->location->strand();
+    #print STDERR "Client $location from biocorba... with ",$location->start," ",$location->end,"]\n";
     return $location;
 }
 
 sub _create_location_from_biocorba_loc {
     my ($locationhash) = @_;
-
     my ($startp, $startext, 
 	$startfuzzy) = ( $locationhash->{'start'}->{'position'},
 			 $locationhash->{'start'}->{'extension'},
@@ -242,6 +311,7 @@ sub _create_location_from_biocorba_loc {
     if( $startfuzzy != 1 || $endfuzzy != 1 ) {
 	$type = 'Bio::Location::Fuzzy';
     }
+    
     return $type->new('-start' => &_get_point_string($startp,
 						     $startext,
 						     $startfuzzy),
