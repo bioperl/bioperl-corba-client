@@ -103,7 +103,7 @@ sub top_SeqFeatures {
 
 sub all_SeqFeatures {
     my ($self) = @_;
-    my $vector = $self->corbaref->SeqFeatures(1);
+    my $vector = $self->corbaref->all_SeqFeatures(1);
     my $iter = $vector->iterator;
     my @features;
     while( $iter->has_more ) {
