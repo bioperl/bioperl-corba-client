@@ -259,3 +259,18 @@ sub version {
 }
 
 
+=head2 desc
+
+ Title   : desc
+ Usage   : $seq->desc
+ Function:
+ Returns : sequence description
+ Args    : 
+
+=cut
+
+sub desc {
+    # no support for this in current implementation
+    return '';
+}
+1;
