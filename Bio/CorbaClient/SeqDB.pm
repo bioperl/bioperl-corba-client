@@ -88,7 +88,7 @@ sub get_Seq_by_id {
     my $self = shift;
     my $acc  = shift;
 
-    my $seq = Bio::CorbaClient::Seq->new(-corbaref => $self->corbaref->get_Seq($acc,0));
+    my $seq = Bio::CorbaClient::Seq->new(-corbaref => $self->corbaref->resolve($acc,0));
     
     return $seq;
 }
@@ -110,7 +110,7 @@ sub get_Seq_by_acc {
     my $self = shift;
     my $acc  = shift;
 
-    my $seq = Bio::CorbaClient::Seq->new(-corbaref => $self->corbaref->get_Seq($acc,0));
+    my $seq = Bio::CorbaClient::Seq->new(-corbaref => $self->corbaref->resolve($acc,0));
     
     return $seq;
 }

@@ -1,0 +1,10 @@
+#ifndef _DS_BIOCORBA_IDL_
+#define _DS_BIOCORBA_IDL_
+ 
+#pragma prefix "omg.org"
+#include <bsane.idl>
+#include <seqcore.idl>
+#include <comparison.idl>
+#include <collection.idl>
+
+#endif // _DS_BIOCORBA_IDL_       

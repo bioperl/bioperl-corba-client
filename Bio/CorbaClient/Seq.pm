@@ -81,11 +81,20 @@ use Bio::SeqI;
 
 sub top_SeqFeatures {
     my ($self ) = @_;
-    my $vector = $self->corbaref->all_SeqFeatures(0);
-    my $iter = $vector->iterator;
+   
+    my $coll   = $self->corbaref->get_seq_features();
+    my $iter;
+
+    my @ref = $coll->get_annotations(1000,$iter);
     my @features;
-    while( $iter->has_more ) {
-	push @features, new Bio::CorbaClient::SeqFeature('-corbaref'=>$iter->next());
+ 
+    foreach my $ref ( @features ) {
+        push @features, new Bio::CorbaClient::SeqFeature('-corbaref' => $ref);
+    }
+
+    my $ref;
+    while( $iter->next($ref) ) {
+	push @features, new Bio::CorbaClient::SeqFeature('-corbaref'=>$ref);
     }
     return @features;
 }
@@ -103,13 +112,7 @@ sub top_SeqFeatures {
 
 sub all_SeqFeatures {
     my ($self) = @_;
-    my $vector = $self->corbaref->all_SeqFeatures(1);
-    my $iter = $vector->iterator;
-    my @features;
-    while( $iter->has_more ) {
-	push @features, new Bio::CorbaClient::SeqFeature('-corbaref'=>$iter->next());
-    }
-    return @features;
+    return $self->top_SeqFeatures();
 }
 
 =head2 primary_seq
@@ -125,7 +128,7 @@ sub all_SeqFeatures {
 sub primary_seq {
     my ($self) = @_;
     return new Bio::CorbaClient::PrimarySeq('-corbaref' => 
-					    $self->corbaref->get_PrimarySeq());
+					    $self);
 }
 
 =head2 feature_count

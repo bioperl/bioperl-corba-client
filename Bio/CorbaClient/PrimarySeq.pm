@@ -154,7 +154,7 @@ sub display_id {
     if( defined $val ) {
 	$self->warn("Attempting to set the value of a primary seq when it is a corba object. You will need to make an in-memory copy");
     }
-    return $self->corbaref->display_id();
+    return $self->corbaref->get_name();
 }
 
 =head2 accession_number
@@ -174,7 +174,7 @@ sub accession_number {
 	$self->warn("Attempting to set the value of a primary seq when it is a corba object. You will need to make an in-memory copy");
     }
 
-    return $self->corbaref->accession_number();
+    return $self->corbaref->get_id();
 }
 
 sub accession {
@@ -215,7 +215,7 @@ sub primary_id {
 	$self->warn("Attempting to set the value of a primary seq when it is a corba object. You will need to make an in-memory copy");
     }
 
-    return $self->corbaref->primary_id();
+    return $self->corbaref->get_id();
 }
 
 sub can_call_new {

@@ -78,6 +78,7 @@ sub new {
     my ($class,@args) = @_;
 
     my $self = $class->SUPER::new(@args);
+    bless $self,$class;
     my ($corbaref) = $self->_rearrange([qw(CORBAREF)],@args);
     if( defined $corbaref ) {
 	$self->corbaref($corbaref);
