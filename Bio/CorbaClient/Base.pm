@@ -112,5 +112,5 @@ sub DESTROY {
 	$self->warn("No corbareference in corbaclient wrapping. Could be leaking memory server-side!");
 	return;
     }
-    $self->corbaref->unref();
+#    $self->corbaref->remove();
 }
