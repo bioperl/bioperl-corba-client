@@ -12,7 +12,7 @@
 
 =head1 NAME
 
-Bio::CorbaClient::PrimarySeqIterator - wrapper over PrimarySeqIterator
+Bio::CorbaClient::PrimarySeqIterator - wrapper over Bio::CorbaServer::PrimarySeqIterator
 
 =head1 SYNOPSIS
 

@@ -1,10 +1,11 @@
 
 #
-# BioPerl module for Bio::CorbaClient::PrimarySeq.pm
+# BioPerl module for Bio::CorbaClient::Seq.pm
 #
-# Cared for by Ewan Birney <birney@ebi.ac.uk>
+# Cared for by Ewan Birney <birney@ebi.ac.uk>, 
+#              Jason Stajich <jason@chg.mc.duke.edu>
 #
-# Copyright Ewan Birney
+# Copyright Ewan Birney, Jason Stajich
 #
 # You may distribute this module under the same terms as perl itself
 
@@ -12,15 +13,14 @@
 
 =head1 NAME
 
-Bio::CorbaClient::PrimarySeq.pm - Wrapper to make Biocorba PrimarySeq
+Bio::CorbaClient::Seq.pm - Wrapper to make Biocorba Seq
 
 =head1 SYNOPSIS
 
-
 =head1 DESCRIPTION
 
-This is a wrapper which maps the Biocorba PrimarySeq to the Bioperl
-PrimarySeq. It does not have to do a great deal...
+This is a wrapper which maps the Biocorba Seq to the Bioperl
+Seq. It does not have to do a great deal...
 
 =head1 FEEDBACK
 
@@ -44,9 +44,9 @@ Report bugs to the Bioperl bug tracking system to help us keep track
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
-=head1 AUTHOR - Ewan Birney
+=head1 AUTHOR - Ewan Birney, Jason Stajich
 
-Email birney@ebi.ac.uk
+Email birney@ebi.ac.uk, jason@chg.mc.duke.edu
 
 Describe contact details here
 
@@ -56,19 +56,52 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
-# Let the code begin...
-
-
-package Bio::CorbaClient::PrimarySeq;
+package Bio::CorbaClient::Seq;
 use vars qw($AUTOLOAD @ISA);
 use strict;
 
 
 use Bio::CorbaClient::Base;
-use Bio::PrimarySeqI;
+use Bio::SeqI;
 
-@ISA = qw(Bio::CorbaClient::Base Bio::PrimarySeqI);
+@ISA = qw(Bio::CorbaClient::Base Bio::SeqI);
+
+
+=head1 SeqI Functions not provided by the IDL
+
+=head2 top_SeqFeatures
+
+ Title   : top_SeqFeatures
+ Usage   : @features = $seq->top_SeqFeatures
+ Function:
+ Example :
+ Returns : array of top level features
+ Args    :
+
+=cut
+
+sub top_SeqFeatures {
+    my ($self ) = @_;    
+    return $self->corbaref->SeqFeatureList();
+}
+
+=head2 all_SeqFeatures
+
+ Title   : all_SeqFeatures
+ Usage   : $seq->all_SeqFeatures
+ Function:
+ Example :
+ Returns : array of all features (descending into each sub feature)
+ Args    : 
+
+=cut
+
+sub all_SeqFeatures {
+    my ($self) = @_;
+    return $self->top_SeqFeatures();
+}
+
+=head1 PrimarySeqI Functions not provided by the IDL
 
 =head2 seq
 
@@ -86,7 +119,6 @@ sub seq {
     if( defined $val ) {
 	$self->warn("Attempting to set the value of a primary seq when it is a corba object. You will need to make an in-memory copy");
     }
-
     return $self->corbaref->get_seq();
 }
 
@@ -102,9 +134,30 @@ sub seq {
 =cut
 
 sub subseq {
-    my($self,$start,$end) = @_;
-
+    my($self,$start,$end) = @_;    
     return $self->corbaref->get_subseq($start,$end);
+}
+
+=head2 moltype
+
+ Title   : moltype
+ Usage   : $seq->moltype
+ Function:
+ Example :
+ Returns : type of molecular sequence
+ Args    : 
+
+=cut
+
+sub moltype {
+    my ($self,$val ) = @_;
+    if( defined $val ) {
+	$self->warn("Attempting to set the value of a primary seq when it is a corba object. You will need to make an in-memory copy");
+    }
+    my $t = lc $self->corbaref->type();
+    
+    return $t if( $t eq 'protein' ||  $t eq 'rna' );
+    return 'dna';
 }
 
 =head2 display_id
@@ -147,13 +200,13 @@ sub accession_number {
     return $self->corbaref->accession_number();
 }
 
-=head2 display_id
+=head2 primary_id
 
- Title   : display_id
- Usage   : $seq->display_id
+ Title   : primary_id
+ Usage   : $seq->primary_id
  Function:
  Example :
- Returns : display id for the sequence
+ Returns : primary_id for the sequence
  Args    : 
 
 =cut
@@ -164,33 +217,21 @@ sub primary_id {
 	$self->warn("Attempting to set the value of a primary seq when it is a corba object. You will need to make an in-memory copy");
     }
 
-    return $self->corbaref->primary_id();
+    return $self->corbaref->primary_id;
 }
 
-sub can_call_new {
-    return 0;
-}
+=head2 can_call_new
 
-=head2 moltype
-
- Title   : moltype
- Usage   : $seq->moltype
+ Title   : can_call_new
+ Usage   : $seq->can_call_new
  Function:
  Example :
- Returns : type of molecular sequence
+ Returns : boolean 
  Args    : 
 
 =cut
 
-sub moltype {
-    my ($self,$val ) = @_;
-    if( defined $val ) {
-	$self->warn("Attempting to set the value of a primary seq when it is a corba object. You will need to make an in-memory copy");
-    }
-    my $t = lc $self->corbaref->type();
-    return $t if( $t eq 'protein' || $t eq 'rna' );   
-    return 'dna';
-
+sub can_call_new {
+    return 0;
 }
-
-
+1;
