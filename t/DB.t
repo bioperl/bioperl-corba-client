@@ -11,15 +11,13 @@
 ## ok 1  [not ok 1 (if test fails)]
 ## 2..3
 ## ok 2  [not ok 2 (if test fails)]
-## 3..3
-## ok 3  [not ok 3 (if test fails)]
 ##
 ## etc. etc. etc. (continue on for each tested function in the .t file)
 #-----------------------------------------------------------------------
 
 
 ## We start with some black magic to print on failure.
-BEGIN { $| = 1; print "1..3\n"; 
+BEGIN { $| = 1; print "1..2\n"; 
 	use vars qw($loaded); }
 
 END {print "not ok 1\n" unless $loaded;}
@@ -40,25 +38,26 @@ print "ok 1\n";    # 1st test passes.
 ## the print "1..x\n" in the BEGIN block to reflect the
 ## total number of tests that will be run. 
 
+eval {
+    open(F,"$ior_file") || die "Could not open $ior_file";
+    $ior = <F>;
+    chomp $ior;
+    close(F); 
+    print STDERR "Got file $ior_file\n";
 
-open(F,"$ior_file") || die "Could not open $ior_file";
-$ior = <F>;
-chomp $ior;
-close(F); 
-print STDERR "Got file $ior_file\n";
+    my $db = new Bio::DB::Biocorba($orb->string_to_object($ior));
+    my @ids = $db->get_all_primary_ids();
+    print "ids are ", join("\n", @ids), "\n";
 
-my $db = new Bio::DB::Biocorba($orb->string_to_object($ior));
-my @ids = $db->get_all_primary_ids();
-print "ids are ", join("\n", @ids), "\n";
-
-my $iter = $db->get_PrimarySeq_stream;
-my $seq;
-while( defined($seq = $iter->next_primary_seq()) ) {
-    print "display id is ", $seq->display_id, " seq is ", $seq->seq, "\n";
-}	
-
+    my $iter = $db->get_PrimarySeq_stream;
+    my $seq;
+    while( defined($seq = $iter->next_primary_seq()) ) {
+	print "display id is ", $seq->display_id, " seq is ", $seq->seq, "\n";
+    }	
+};
 
 if ($@) {
+    print STDERR "test Failed: Make sure a the file $ior_file exists and was created by a running SeqDB server\n";
     print "not ok 2\n";
 } else {
     print "ok 2\n";
