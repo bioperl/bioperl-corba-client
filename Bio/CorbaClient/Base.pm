@@ -21,7 +21,7 @@ Bio::CorbaClient::Base - Base class for all Corba Client wrappers
 
 This is the base class for all Biocorba client wrappers. This class 
 provides the simple memory management model which is crucial to make
-sure we don't leave objects forever on the server side. The memory
+sure we do not leave objects forever on the server side. The memory
 management happens via ref/unref calls - generally we will never touch
 ref as (from our perspective) we only ever get on object. unref is 
 important (duh!).
