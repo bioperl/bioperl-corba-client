@@ -79,7 +79,6 @@ sub new {
 
     my $self = $class->SUPER::new(@args);
     my ($corbaref) = $self->_rearrange([qw(CORBAREF)],@args);
-
     if( defined $corbaref ) {
 	$self->corbaref($corbaref);
     }
@@ -95,7 +94,6 @@ sub new {
  Returns : value of corbaref
  Args    : newvalue (optional)
 
-
 =cut
 
 sub corbaref{
@@ -104,9 +102,7 @@ sub corbaref{
       $obj->{'corbaref'} = $value;
     }
     return $obj->{'corbaref'};
-
 }
-
 
 sub DESTROY {
     my $self= shift;
@@ -115,8 +111,5 @@ sub DESTROY {
 	$self->warn("No corbareference in corbaclient wrapping. Could be leaking memory server-side!");
 	return;
     }
-
     $self->corbaref->unref();
 }
-
-

@@ -82,7 +82,14 @@ use Bio::Location::Simple;
 
 sub sub_SeqFeature {
     my $self = shift;
-    return $self->corbaref->qualifiers();
+    my @array;
+    my $vector = $self->corbaref->sub_SeqFeatures(1);
+    my $iter = $vector->iterator();
+    while( $iter->has_more ) {
+	push @array, new Bio::CorbaClient::SeqFeature('-corbref' => 
+						      $iter->next);
+    }
+    return @array;
 }
 
 =head2 primary_tag
@@ -152,9 +159,10 @@ sub has_tag{
 
 sub all_tags{
     my $self = shift;
-    my @quals = $self->corbaref->qualifiers();
-    my @tags;
-    foreach my $qual ( @quals ) {
+    my $quals = $self->corbaref->qualifiers();    
+    return () unless defined $quals;
+    my @tags;    
+    foreach my $qual ( @$quals ) {
 	push @tags, $qual->{name};
     }
     return @tags;

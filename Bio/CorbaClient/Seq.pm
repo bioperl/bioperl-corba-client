@@ -62,7 +62,7 @@ package Bio::CorbaClient::Seq;
 use vars qw(@ISA);
 use strict;
 
-use Bio::CorbaClient::Base;
+use Bio::CorbaClient::PrimarySeq;
 use Bio::SeqI;
 
 @ISA = qw(Bio::CorbaClient::PrimarySeq Bio::SeqI);

@@ -154,7 +154,6 @@ sub display_id {
     if( defined $val ) {
 	$self->warn("Attempting to set the value of a primary seq when it is a corba object. You will need to make an in-memory copy");
     }
-
     return $self->corbaref->display_id();
 }
 

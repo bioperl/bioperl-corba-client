@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::DB::Biocorba
 #
@@ -58,13 +58,11 @@ methods. Internal methods are usually preceded with a _
 =cut
 
 package Bio::DB::Biocorba;
-use vars qw($AUTOLOAD @ISA);
+use vars qw(@ISA);
 use strict;
-
 
 use Bio::CorbaClient::Base;
 use Bio::CorbaClient::Seq;
-use Bio::CorbaClient::PrimarySeq;
 use Bio::SeqIO;
 use Bio::DB::SeqI;
 
@@ -86,7 +84,7 @@ use Bio::DB::SeqI;
 sub get_Seq_by_id {
     my ($self,$id) = shift;    
     my $corbaref = $self->corbaref->get_Seq($id);
-    return Bio::CorbaClient::Seq->new($corbaref) if( defined $corbaref );
+    return Bio::CorbaClient::Seq->new('-corbaref' => $corbaref) if( defined $corbaref );
     $self->throw("DB::Biocorba could not find a seq for id=$id\n"); 
     return undef;
 }
@@ -106,8 +104,9 @@ sub get_Seq_by_acc {
     my ($self,$id) = @_;
     # can you really get this by acc ?
     my $corbaref = $self->corbaref->get_Seq($id);
-    return Bio::CorbaClient::Seq->new($corbaref) if( defined $corbaref );
-    throw org::biocorba::seqcore::UnableToProcess(reason=>"DB::Biocorba could not find a seq for acc=$id\n"); 
+    return Bio::CorbaClient::Seq->new('-corbaref' => $corbaref) 
+	if( defined $corbaref );
+    $self->throw("DB::Biocorba could not find a seq for acc=$id\n"); 
     return undef;
 }
 
@@ -188,7 +187,8 @@ sub get_all_primary_ids{
 
 sub get_Seq_by_primary_id {
    my ($self,@args) = @_;
-   return Bio::CorbaClient::Seq->new($self->corbaref->get_Seq(shift @args));
+   return Bio::CorbaClient::Seq->new('-corbaref' => 
+				     $self->corbaref->get_Seq(shift @args));
 }
 
 1;
