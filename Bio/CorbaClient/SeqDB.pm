@@ -90,11 +90,11 @@ sub get_Seq_by_id {
     
     my $seq;
     eval {
-      $seq = Bio::CorbaClient::Seq->new(-corbaref => $self->corbaref->resolve($acc,0));
+      $seq = Bio::CorbaClient::Seq->new(-corbaref => $self->corbaref->resolve($acc));
     };
 
     if( $@ ) {
-      $self->warn("Sequence $acc was not returned from the CORBA server. The original CORBA exception was $@");
+      $self->warn("Sequence $acc was not returned from the CORBA server. The original CORBA exception was:\n $@");
       return undef;
     }
 
