@@ -1,0 +1,41 @@
+
+Bioperl Corba Client is a collection of modules which makes Biocorba
+objects look like Bioperl objects.
+
+The most important thing which this does is handle memory. As Corba is
+agnostic about memory management, these objects handle the memory
+communication with the server (the biocorba system has its own memory
+management convention)
+
+The second thing is that it provides breathing space between bioperl and
+biocorba. This way bioperl can evolve separately to biocorba, providing
+interoperability with stiffling each project.
+
+For more details of the biocorba project, the most developed distribution
+is the bioperl-corba-server.
+
+INSTALLATION
+------------
+
+You need to have two components installed on your machine for
+Biocorba to work:
+
+   orbit (comes installed by default in redhat linux)
+   CORBA::ORBit (available from cpan)
+
+Bioperl-corba-client installs as a standard CPAN module
+
+Type the following commands:
+
+perl Makefile.PL
+make
+<become-root>
+make install
+
+If you can't become root go
+
+perl Makefile.PL LIB=/somewhere/you/can/write/to
+
+
+
+
