@@ -177,6 +177,27 @@ sub accession_number {
     return $self->corbaref->accession_number();
 }
 
+sub accession {
+    my $self = shift;
+
+    return $self->accession_number;
+}
+
+sub seq_version {
+    my $self = shift;
+
+    return $self->version;
+}
+
+sub species {
+    my $self = shift;
+
+    $self->warn("biocorba does not support species yet!");
+
+    return undef;
+}
+
+
 =head2 display_id
 
  Title   : display_id

@@ -168,6 +168,33 @@ sub all_tags{
     return @tags;
 }
 
+=head2 each_tag_value
+
+ Title   : each_tag_value
+ Usage   :
+ Function:
+ Example :
+ Returns : 
+ Args    :
+
+
+=cut
+
+sub each_tag_value{
+   my ($self,$tag) = @_;
+
+   my $quals = $self->corbaref->qualifiers();    
+   return () unless defined $quals;
+   
+   foreach my $qual ( @$quals ) {
+       if( $qual->{name} eq $tag ) {
+	   return @{$qual->{values}};
+       }
+   }
+   return ();
+}
+
+
 =head2 location 
 
  Title   : location
@@ -182,16 +209,19 @@ sub location {
     my ($self) = @_;
     my $locations = $self->corbaref->locations();
     my $location;
-    if( ! defined $locations || @$locations > 0 ) {
+    if( ! defined $locations || @$locations == 0 ) {
+	#print STDERR "Empty location! [$locations] yikes!\n";
 	$location = new Bio::Location::Simple;
     } elsif( scalar @$locations > 1 ) {
 	$location = new Bio::Location::Split();
 	foreach my $l ( @$locations ) {
-	    $location->add_Sub_Location(&_create_location_from_biocorba_loc($l));
+	    $location->add_sub_Location(&_create_location_from_biocorba_loc($l));
 	}
     } else {
 	$location = &_create_location_from_biocorba_loc($locations->[0]);
     } 
+    #print STDERR "Client $location from biocorba... with ",$location->start," ",$location->end,"]\n";
+
     return $location;
 }
 

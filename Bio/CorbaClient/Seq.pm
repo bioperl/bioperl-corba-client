@@ -63,6 +63,7 @@ use vars qw(@ISA);
 use strict;
 
 use Bio::CorbaClient::PrimarySeq;
+use Bio::CorbaClient::SeqFeature;
 use Bio::SeqI;
 
 @ISA = qw(Bio::CorbaClient::PrimarySeq Bio::SeqI);
@@ -124,7 +125,7 @@ sub all_SeqFeatures {
 sub primary_seq {
     my ($self) = @_;
     return new Bio::CorbaClient::PrimarySeq('-corbaref' => 
-					    $self->corbaref->get_Primary_Seq());
+					    $self->corbaref->get_PrimarySeq());
 }
 
 =head2 feature_count
@@ -149,5 +150,16 @@ sub feature_count {
     }
     return $count;
 }
+
+sub annotation {
+    my $self = shift;
+
+    $self->warn("Biocorba does not implement annotations yet");
+
+    my $a = Bio::Annotation->new();
+
+    return $a;
+}
+
 
 1;
