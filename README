@@ -1,4 +1,3 @@
-
 Bioperl Corba Client is a collection of modules which makes Biocorba
 objects look like Bioperl objects.
 
@@ -48,4 +47,4 @@ If you want to run the DB.t test (the only one currently), you will
 need to start the servers/seqdbsrv.pl in bioperl-corba-server or
 some other CORBA SeqDB server.  You will need an IOR file called
 seqdbsrv.ior (see t/DB.t for more info) in the client root dir 
-(bioperl-corba-client-0.1 in the dist case).
+(bioperl-corba-client-0.2 in the dist case).

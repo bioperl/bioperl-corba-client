@@ -1,5 +1,12 @@
 Revision History for BioCorba::Client modules
 
+0.02   Mon Mar  5 18:25:05 EST 2001
+       - Support for updated new biocorba (0.2) IDL as written
+         by Alan Robinson
+
+       - Some features are still not properly documented but this
+	 release reprents some modest improvements from the 0.1 code.
+
 0.01    Tue May 22 17:34:47 EDT 2000  
 	- Initial release 
 	- Supports full IDL features.  
