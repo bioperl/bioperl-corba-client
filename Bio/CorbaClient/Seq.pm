@@ -66,6 +66,7 @@ use Bio::CorbaClient::PrimarySeq;
 use Bio::CorbaClient::SeqFeature;
 use Bio::SeqI;
 
+
 @ISA = qw(Bio::CorbaClient::PrimarySeq Bio::SeqI);
 
 =head2 top_SeqFeatures
@@ -85,15 +86,20 @@ sub top_SeqFeatures {
     my $coll   = $self->corbaref->get_seq_features();
     my $iter;
 
-    my @ref = $coll->get_annotations(1000,$iter);
+    my ($reflist,$iter) = $coll->get_annotations(1000,$iter);
     my @features;
  
-    foreach my $ref ( @features ) {
+    foreach my $ref ( @{$reflist} ) {
         push @features, new Bio::CorbaClient::SeqFeature('-corbaref' => $ref);
     }
 
     my $ref;
-    while( $iter->next($ref) ) {
+    my $ret = 1;
+    while( $ret ) {
+        ($ret,$ref) = $iter->next();
+        if( $ret == 0 ) {
+           last;
+	 }
 	push @features, new Bio::CorbaClient::SeqFeature('-corbaref'=>$ref);
     }
     return @features;
@@ -128,7 +134,7 @@ sub all_SeqFeatures {
 sub primary_seq {
     my ($self) = @_;
     return new Bio::CorbaClient::PrimarySeq('-corbaref' => 
-					    $self);
+					    $self->corbaref );
 }
 
 =head2 feature_count
@@ -159,7 +165,7 @@ sub annotation {
 
     $self->warn("Biocorba does not implement annotations yet");
 
-    my $a = Bio::Annotation->new();
+    my $a = Bio::Annotation::Collection->new();
 
     return $a;
 }

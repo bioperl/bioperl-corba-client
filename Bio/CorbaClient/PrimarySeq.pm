@@ -99,7 +99,7 @@ sub is_circular {
 
 sub length {
     my ($self ) = @_;
-    return $self->corbaref->length();
+    return $self->corbaref->get_length();
 }
 
 =head2 seq
@@ -273,4 +273,22 @@ sub desc {
     # no support for this in current implementation
     return '';
 }
+
+
+sub alphabet {
+  my $self = shift;
+
+  my $type= $self->corbaref->get_type;
+
+  # read the corba IDL spec
+  if( $type == 0 ) {
+    return 'protein';
+  } elsif ( $type == 1 ) {
+    return 'dna';
+  } else {
+    return 'rna';
+  }
+}
+
+
 1;
