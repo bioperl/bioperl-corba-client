@@ -105,7 +105,7 @@ sub _new {
 
     my $corbaref = $orb->string_to_object($ior);
 
-    if( ! ref $corbaref || ! $corbaref->isa('org::Biocorba::PrimarySeqIterator') ) {
+    if( ! ref $corbaref || ! $corbaref->isa('org::biocorba::PrimarySeqIterator') ) {
 	$self->throw("Unable to bind to (supposed) ior in biocorba file");
     }
 

@@ -69,7 +69,6 @@ use Bio::DB::SeqI;
 
 @ISA = qw(Bio::CorbaClient::Base Bio::DB::SeqI);
 
-
 =head1 Bio::DB::RandomAccessI Functions not provided by the IDL
 
 =head2 get_Seq_by_id
@@ -87,7 +86,7 @@ sub get_Seq_by_id {
     my ($self,$id) = shift;    
     my $corbaref = $self->corbaref->get_Seq($id);
     return Bio::CorbaClient::Seq->new($corbaref) if( defined $corbaref );
-    throw org::Biocorba::Seqcore::UnableToProcess(reason=>"DB::Biocorba could not find a seq for id=$id\n"); 
+    throw org::biocorba::seqcore::UnableToProcess(reason=>"DB::Biocorba could not find a seq for id=$id\n"); 
     return undef;
 }
 
@@ -107,7 +106,7 @@ sub get_Seq_by_acc {
     # can you really get this by acc ?
     my $corbaref = $self->corbaref->get_Seq($id);
     return Bio::CorbaClient::Seq->new($corbaref) if( defined $corbaref );
-    throw org::Biocorba::Seqcore::UnableToProcess(reason=>"DB::Biocorba could not find a seq for acc=$id\n"); 
+    throw org::biocorba::seqcore::UnableToProcess(reason=>"DB::Biocorba could not find a seq for acc=$id\n"); 
     return undef;
 }
 
@@ -150,8 +149,8 @@ sub get_PrimarySeq_stream{
 
 sub get_all_primary_ids{
     my ($self,@args) = @_;   
-   if( ! $self->corbaref->isa('org::Biocorba::Seqcore::SeqDB')) {
-       $self->throw("This is not a org::Biocorba::Seqcore::SeqDB so get_all_primary_ids is not supported\n");
+   if( ! $self->corbaref->isa('org::biocorba::seqcore::SeqDB')) {
+       $self->throw("This is not a org::biocorba::seqcore::SeqDB so get_all_primary_ids is not supported\n");
        return ();
    } 
     my $ids = $self->corbaref->get_primaryidList();

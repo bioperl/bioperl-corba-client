@@ -78,8 +78,7 @@ use Bio::Root::RootI;
 sub new {
     my ($class,$corbaref) = @_;
 
-    my $self = {};
-    bless $self,$class;
+    my $self = bless {}, $class;
     if( defined $corbaref ) {
 	$self->corbaref($corbaref);
     }
