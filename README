@@ -37,5 +37,10 @@ If you can't become root go
 perl Makefile.PL LIB=/somewhere/you/can/write/to
 
 
+RUNNING THE TESTS 
+-------
 
+Because the tests are dependant on a server being available it is
+necessary that links or copies of the IOR files and biocorba.idl 
+are setup correctly.
 
