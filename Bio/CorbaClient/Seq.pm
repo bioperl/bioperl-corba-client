@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::CorbaClient::Seq.pm
 #
@@ -26,48 +26,46 @@ Seq. It does not have to do a great deal...
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bio.perl.org          - General discussion
-  bioperl-guts-l@bio.perl.org     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org                  - General Bioperl discussion
+  biocorba-l@biocorba.org                - General Biocorba discussion
+  http://www.bioperl.org/MailList.html   - About the bioperl mailing list
+  http://www.biocorba.org/MailList.shtml - About the biocorba mailing list
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
 =head1 AUTHOR - Ewan Birney, Jason Stajich
 
-Email birney@ebi.ac.uk, jason@chg.mc.duke.edu
+Email birney@ebi.ac.uk
+      jason@chg.mc.duke.edu
 
 Describe contact details here
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
 package Bio::CorbaClient::Seq;
-use vars qw($AUTOLOAD @ISA);
+use vars qw(@ISA);
 use strict;
-
 
 use Bio::CorbaClient::Base;
 use Bio::SeqI;
 
-@ISA = qw(Bio::CorbaClient::Base Bio::SeqI);
-
-
-=head1 SeqI Functions not provided by the IDL
+@ISA = qw(Bio::CorbaClient::PrimarySeq Bio::SeqI);
 
 =head2 top_SeqFeatures
 
@@ -81,8 +79,14 @@ use Bio::SeqI;
 =cut
 
 sub top_SeqFeatures {
-    my ($self ) = @_;    
-    return $self->corbaref->SeqFeatureList();
+    my ($self ) = @_;
+    my $vector = $self->corbaref->all_SeqFeatures(0);
+    my $iter = $vector->iterator;
+    my @features;
+    while( $iter->has_more ) {
+	push @features, new Bio::CorbaClient::SeqFeature('-corbaref'=>$iter->next());
+    }
+    return @features;
 }
 
 =head2 all_SeqFeatures
@@ -98,140 +102,52 @@ sub top_SeqFeatures {
 
 sub all_SeqFeatures {
     my ($self) = @_;
-    return $self->top_SeqFeatures();
-}
-
-=head1 PrimarySeqI Functions not provided by the IDL
-
-=head2 seq
-
- Title   : seq
- Usage   : $seq = $seq->seq
- Function:
- Example :
- Returns : sequence string for this Sequence
- Args    :
-
-=cut
-
-sub seq {
-    my ($self,$val ) = @_;
-    if( defined $val ) {
-	$self->warn("Attempting to set the value of a primary seq when it is a corba object. You will need to make an in-memory copy");
+    my $vector = $self->corbaref->SeqFeatures(1);
+    my $iter = $vector->iterator;
+    my @features;
+    while( $iter->has_more ) {
+	push @features, new Bio::CorbaClient::SeqFeature('-corbaref'=>$iter->next());
     }
-    return $self->corbaref->get_seq();
+    return @features;
 }
 
-=head2 subseq
+=head2 primary_seq
 
- Title   : subseq
- Usage   : $seq = $seq->subseq($begin,$end)
- Function:
- Example :
- Returns : sub-sequence string for this Sequence
- Args    : $begin, $end indexes to extract seq
+ Title   : primary_seq
+ Usage   : my $pseq = $seq->primary_seq
+ Function: returns a PrimarySeq object 
+ Returns : Bio::CorbaClient::PrimarySeq object
+ Args    : none
 
 =cut
 
-sub subseq {
-    my($self,$start,$end) = @_;    
-    return $self->corbaref->get_subseq($start,$end);
+sub primary_seq {
+    my ($self) = @_;
+    return new Bio::CorbaClient::PrimarySeq('-corbaref' => 
+					    $self->corbaref->get_Primary_Seq());
 }
 
-=head2 moltype
+=head2 feature_count
 
- Title   : moltype
- Usage   : $seq->moltype
- Function:
- Example :
- Returns : type of molecular sequence
- Args    : 
+ Title   : feature_count
+ Usage   : $seq->feature_count()
+ Function: Return the number of SeqFeatures attached to a sequence
+ Example : 
+ Returns : number of SeqFeatures
+ Args    : none
+
 
 =cut
 
-sub moltype {
-    my ($self,$val ) = @_;
-    if( defined $val ) {
-	$self->warn("Attempting to set the value of a primary seq when it is a corba object. You will need to make an in-memory copy");
+sub feature_count {
+    my ($self) = @_;
+    my $count = 0;
+    my $vector = $self->corbaref->SeqFeatures(1);
+    my $iter = $vector->iterator;
+    while( $iter->has_more ) {
+	$count++;
     }
-    my $t = lc $self->corbaref->type();
-    
-    return $t if( $t eq 'protein' ||  $t eq 'rna' );
-    return 'dna';
+    return $count;
 }
 
-=head2 display_id
-
- Title   : display_id
- Usage   : $seq->display_id
- Function:
- Example :
- Returns : display id for the sequence
- Args    : 
-
-=cut
-
-sub display_id {
-    my ($self,$val ) = @_;
-    if( defined $val ) {
-	$self->warn("Attempting to set the value of a primary seq when it is a corba object. You will need to make an in-memory copy");
-    }
-
-    return $self->corbaref->display_id();
-}
-
-=head2 accession_number
-
- Title   : accession_number
- Usage   : $seq->accession_number
- Function:
- Example :
- Returns : accession number for the sequence
- Args    : 
-
-=cut
-
-sub accession_number {
-    my ($self,$val ) = @_;
-    if( defined $val ) {
-	$self->warn("Attempting to set the value of a primary seq when it is a corba object. You will need to make an in-memory copy");
-    }
-
-    return $self->corbaref->accession_number();
-}
-
-=head2 primary_id
-
- Title   : primary_id
- Usage   : $seq->primary_id
- Function:
- Example :
- Returns : primary_id for the sequence
- Args    : 
-
-=cut
-
-sub primary_id {
-    my ($self,$val ) = @_;
-    if( defined $val ) {
-	$self->warn("Attempting to set the value of a primary seq when it is a corba object. You will need to make an in-memory copy");
-    }
-
-    return $self->corbaref->primary_id;
-}
-
-=head2 can_call_new
-
- Title   : can_call_new
- Usage   : $seq->can_call_new
- Function:
- Example :
- Returns : boolean 
- Args    : 
-
-=cut
-
-sub can_call_new {
-    return 0;
-}
 1;

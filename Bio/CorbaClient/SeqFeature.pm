@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::CorbaClient::SeqFeature.pm
 #
@@ -26,48 +26,49 @@ SeqFeature. It does not have to do a great deal...
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bio.perl.org          - General discussion
-  bioperl-guts-l@bio.perl.org     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org                  - General Bioperl discussion
+  biocorba-l@biocorba.org                - General Biocorba discussion
+  http://www.bioperl.org/MailList.html   - About the bioperl mailing list
+  http://www.biocorba.org/MailList.shtml - About the biocorba mailing list
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
 =head1 AUTHOR - Ewan Birney, Jason Stajich
 
-Email birney@ebi.ac.uk, jason@chg.mc.duke.edu
+Email birney@ebi.ac.uk 
+      jason@chg.mc.duke.edu
 
 Describe contact details here
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
 package Bio::CorbaClient::SeqFeature;
-use vars qw($AUTOLOAD @ISA);
+use vars qw(@ISA);
 use strict;
-
 
 use Bio::CorbaClient::Base;
 use Bio::SeqFeatureI;
+use Bio::Location::Split;
+use Bio::Location::Fuzzy;
+use Bio::Location::Simple;
 
 @ISA = qw(Bio::CorbaClient::Base Bio::SeqFeatureI);
-
-
-=head1 SeqFeatureI Functions not provided by the IDL
 
 =head2 sub_SeqFeature
 
@@ -76,7 +77,6 @@ use Bio::SeqFeatureI;
  Function: Returns an array of sub Sequence Features
  Returns : An array
  Args    : none
-
 
 =cut
 
@@ -94,7 +94,6 @@ sub sub_SeqFeature {
  Returns : a string 
  Args    : none
 
-
 =cut
 
 sub primary_tag{
@@ -107,10 +106,9 @@ sub primary_tag{
  Title   : source_tag
  Usage   : $tag = $feat->source_tag()
  Function: Returns the source tag for a feature,
-           eg, 'genscan' 
+           eg, 'exon' 
  Returns : a string 
  Args    : none
-
 
 =cut
 
@@ -127,7 +125,6 @@ sub source_tag{
            none)
  Returns : 
  Args    :
-
 
 =cut
 
@@ -162,4 +159,74 @@ sub all_tags{
     }
     return @tags;
 }
+
+=head2 location 
+
+ Title   : location
+ Usage   : my $loc = $obj->location
+ Function: returns the Bio::LocationI object for this object
+ Returns : Bio::LocationI
+ Args    : none
+
+=cut
+
+sub location {
+    my ($self) = @_;
+    my $locations = $self->corbaref->locations();
+    my $location;
+    if( ! defined $locations || @$locations > 0 ) {
+	$location = new Bio::Location::Simple;
+    } elsif( scalar @$locations > 1 ) {
+	$location = new Bio::Location::Split();
+	foreach my $l ( @$locations ) {
+	    $location->add_Sub_Location(&_create_location_from_biocorba_loc($l));
+	}
+    } else {
+	$location = &_create_location_from_biocorba_loc($locations->[0]);
+    } 
+    return $location;
+}
+
+sub _create_location_from_biocorba_loc {
+    my ($locationhash) = @_;
+
+    my ($startp, $startext, 
+	$startfuzzy) = ( $locationhash->{'start'}->{'position'},
+			 $locationhash->{'start'}->{'extension'},
+			 $locationhash->{'start'}->{'fuzzy'},
+			 );
+    my ($endp, $endext, 
+	$endfuzzy) = ( $locationhash->{'end'}->{'position'},
+		       $locationhash->{'end'}->{'extension'},
+		       $locationhash->{'end'}->{'fuzzy'},
+		       );
+    my $type = 'Bio::Location::Simple';
+    if( $startfuzzy != 1 || $endfuzzy != 1 ) {
+	$type = 'Bio::Location::Fuzzy';
+    }
+    return $type->new('-start' => &_get_point_string($startp,
+						     $startext,
+						     $startfuzzy),
+		      '-end'   =>  &_get_point_string($endp,
+							   $endext,
+						      $endfuzzy),
+		      '-strand' => $locationhash->{'strand'} );
+}
+
+sub _get_point_string {
+    my ($start,$ext,$fuzzy) = @_;
+    
+    if( $fuzzy == 2 ) {
+	return sprintf("%s.%s", $start, $start+$ext);
+    } elsif( $fuzzy == 3 ) {
+	return sprintf("%s^%s", $start, $start+$ext);
+    } elsif( $fuzzy == 4 ) {
+	return sprintf("<%s",$start);
+    } elsif( $fuzzy == 5 ) {
+	return sprintf("%s>",$start);
+    } else { 
+	return $start;
+    }
+}
+
 1;

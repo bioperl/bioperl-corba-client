@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::CorbaClient::Base
 #
@@ -33,20 +33,19 @@ so we can throw nicely.
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bio.perl.org          - General discussion
-  bioperl-guts-l@bio.perl.org     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org                  - General Bioperl discussion
+  biocorba-l@biocorba.org                - General Biocorba discussion
+  http://www.bioperl.org/MailList.html   - About the bioperl mailing list
+  http://www.biocorba.org/MailList.shtml - About the biocorba mailing list
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email or the web:
 
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
@@ -76,9 +75,11 @@ use Bio::Root::RootI;
 @ISA = qw(Bio::Root::RootI);
 
 sub new {
-    my ($class,$corbaref) = @_;
+    my ($class,@args) = @_;
 
-    my $self = bless {}, $class;
+    my $self = $class->SUPER::new(@args);
+    my ($corbaref) = $self->_rearrange([qw(CORBAREF)],@args);
+
     if( defined $corbaref ) {
 	$self->corbaref($corbaref);
     }

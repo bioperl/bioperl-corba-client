@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::CorbaClient::PrimarySeq.pm
 #
@@ -16,6 +16,7 @@ Bio::CorbaClient::PrimarySeq.pm - Wrapper to make Biocorba PrimarySeq
 
 =head1 SYNOPSIS
 
+Describe usage here.
 
 =head1 DESCRIPTION
 
@@ -26,49 +27,80 @@ PrimarySeq. It does not have to do a great deal...
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bio.perl.org          - General discussion
-  bioperl-guts-l@bio.perl.org     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org                  - General Bioperl discussion
+  biocorba-l@biocorba.org                - General Biocorba discussion
+  http://www.bioperl.org/MailList.html   - About the bioperl mailing list
+  http://www.biocorba.org/MailList.shtml - About the biocorba mailing list
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
-=head1 AUTHOR - Ewan Birney
+=head1 AUTHOR - Ewan Birney, Jason Stajich
 
 Email birney@ebi.ac.uk
+      jason@chg.mc.duke.edu
 
 Describe contact details here
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
-
 # Let the code begin...
 
-
 package Bio::CorbaClient::PrimarySeq;
-use vars qw($AUTOLOAD @ISA);
+use vars qw(@SEQTYPES @ISA);
 use strict;
-
 
 use Bio::CorbaClient::Base;
 use Bio::PrimarySeqI;
 
 @ISA = qw(Bio::CorbaClient::Base Bio::PrimarySeqI);
+
+BEGIN { @SEQTYPES = qw(PROTEIN DNA RNA) }
+ 
+=head2 is_circular
+
+ Title   : is_circular
+ Usage   : my $circular = $seq->is_circular
+ Function: return whether or not this sequence is circular
+ Returns : boolean
+ Args    : none
+
+=cut
+
+sub is_circular {
+    my ($self) = @_;
+    return $self->corbaref->is_circular();
+}
+
+=head2 length
+
+ Title   : length
+ Usage   : $len = $seq->length
+ Function: return sequence length
+ Returns : (long) sequence length
+ Args    : none
+
+=cut
+
+sub length {
+    my ($self ) = @_;
+    return $self->corbaref->length();
+}
 
 =head2 seq
 
@@ -87,7 +119,7 @@ sub seq {
 	$self->warn("Attempting to set the value of a primary seq when it is a corba object. You will need to make an in-memory copy");
     }
 
-    return $self->corbaref->get_seq();
+    return $self->corbaref->seq();
 }
 
 =head2 subseq
@@ -103,8 +135,7 @@ sub seq {
 
 sub subseq {
     my($self,$start,$end) = @_;
-
-    return $self->corbaref->get_subseq($start,$end);
+    return $self->corbaref->subseq($start,$end);
 }
 
 =head2 display_id
@@ -187,10 +218,24 @@ sub moltype {
     if( defined $val ) {
 	$self->warn("Attempting to set the value of a primary seq when it is a corba object. You will need to make an in-memory copy");
     }
-    my $t = lc $self->corbaref->type();
+    my $t = lc $SEQTYPES[$self->corbaref->type()];
     return $t if( $t eq 'protein' || $t eq 'rna' );   
     return 'dna';
+}
 
+=head2 version
+
+ Title   : version
+ Usage   : $seq->version
+ Function: return (unstable) sequence version
+ Returns : (long) version
+ Args    : none
+
+=cut
+
+sub version {
+    my ($self ) = @_;
+    return $self->corbaref->version;
 }
 
 

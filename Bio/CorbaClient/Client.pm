@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::CorbaClient::Client
 #
@@ -35,14 +35,14 @@ This object provides BioCorba object creation support.
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bio.perl.org          - General discussion
-  bioperl-guts-l@bio.perl.org     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org                  - General Bioperl discussion
+  biocorba-l@biocorba.org                - General Biocorba discussion
+  http://www.bioperl.org/MailList.html   - About the bioperl mailing list
+  http://www.biocorba.org/MailList.shtml - About the biocorba mailing list
 
 =head2 Reporting Bugs
 
@@ -57,10 +57,10 @@ Report bugs to the Bioperl bug tracking system to help us keep track
 
 Email jason@chg.mc.duke.edu    
 
-
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -68,35 +68,34 @@ The rest of the documentation details each of the object methods. Internal metho
     
 package Bio::CorbaClient::Client;
 
-use vars qw($AUTOLOAD @ISA);
+use vars qw(@ISA);
 use strict;
 
 use CORBA::ORBit idl => [ 'biocorba.idl' ];
 
-use Bio::Root::Object;
-use Bio::CorbaServer::Base;
+use Bio::Root::RootI;
 
+@ISA = qw ( Bio::Root::RootI );
 
-@ISA = qw ( Bio::Root::Object );
-
-sub _initialize { 
-
-    my ( $self, @args ) = @_;
+sub new { 
+    my ( $class, @args ) = @_;
+    my $self = $class->SUPER::new(@args);
 
     my ( $idl, $ior, $orbname ) = $self->_rearrange( [ qw(IDL IOR ORBNAME)], 
 						     @args);
 
-    $self->{_ior} = $ior || $self->throw("must provide an ior file to open");
-    $self->{_idl} = $idl || 'biocorba.idl';
-    $self->{_orbname} = $orbname || 'orbit-local-orb';
+    $self->{'_ior'} = $ior || $self->throw("must provide an ior file to open");
+    $self->{'_idl'} = $idl || 'biocorba.idl';
+    $self->{'_orbname'} = $orbname || 'orbit-local-orb';
     
     my $orb = CORBA::ORB_init($orbname);
-    open( IOR, $self->{_ior}) || $self->throw("cannot open ior file " . $self->{_ior});    
+    open( IOR, $self->{'_ior'}) || $self->throw("cannot open ior file " .
+						$self->{'_ior'});    
     
     my $iorfile = <IOR>;
     chomp($iorfile);
-    $self->{_orb} = $orb;
-    $self->{_iorfile} = $iorfile;
+    $self->{'_orb'} = $orb;
+    $self->{'_iorfile'} = $iorfile;
     return $self;
 }
 
@@ -114,11 +113,14 @@ sub new_object {
 	return undef;
     }       
     $args = [ () ] if( !defined $args );
-    $obj = $objectname->new( $self->{_orb}->string_to_object($self->{_iorfile}), @$args );    
+    my $ior = $self->{'_iorfile'};
+    $obj = $objectname->new( '-corbaref' => 
+			     $self->{'_orb'}->string_to_object($ior), 
+			     @$args );    
     if( @$ || !defined $obj ) { 
 	$self->throw("Cannot instantiate object of type $objectname");
     }
-    push @{$self->{_clientobjs}}, $obj;
+    push @{$self->{'_clientobjs'}}, $obj;
     return $obj;
 }
 

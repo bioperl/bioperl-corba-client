@@ -1,5 +1,4 @@
-
-
+# $Id$
 #
 # BioPerl module for Bio::CorbaClient::ORB
 #
@@ -30,27 +29,28 @@ happens.
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bio.perl.org          - General discussion
-  bioperl-guts-l@bio.perl.org     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org                  - General Bioperl discussion
+  biocorba-l@biocorba.org                - General Biocorba discussion
+  http://www.bioperl.org/MailList.html   - About the bioperl mailing list
+  http://www.biocorba.org/MailList.shtml - About the biocorba mailing list
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
 
-=head1 AUTHOR - Ewan Birney
+=head1 AUTHOR - Ewan Birney, Jason Stajich
 
 Email birney@ebi.ac.uk
+      jason@chg.mc.duke.edu
 
 Describe contact details here
 
@@ -60,9 +60,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::CorbaClient::ORB;
 use CORBA::ORBit idl => [ 'biocorba.idl' ];
@@ -73,7 +71,6 @@ sub get_orb {
     if( !defined $orb ) {
 	$orb = CORBA::ORB_init("orbit-local-orb");
     }
-
     return $orb;
 }
 

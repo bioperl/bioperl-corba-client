@@ -1,4 +1,4 @@
-
+# $Id$
 #
 # BioPerl module for Bio::SeqIO::biocorba
 #
@@ -7,43 +7,43 @@
 # Copyright Ewan Birney
 #
 # You may distribute this module under the same terms as perl itself
-
 # POD documentation - main docs before the code
 
 =head1 NAME
 
-Bio::SeqIO::biocorba - biocorba seqio
+Bio::SeqIO::biocorba - biocorba seqio bridge
 
 =head1 SYNOPSIS
 
 # run a biocorba server somewhere, writing its IOR to a file:
 
-   $seqio = Bio::SeqIO->new( '-format' => 'biocorba' , -file => 'biocorba_server.ior' ) ;
-   $seqout = Bio::SeqIO->new ('format' => 'fasta',-fh => \* STDOUT);
+   $seqio = Bio::SeqIO->new( '-format' => 'biocorba' , 
+			     -file => 'biocorba_server.ior' ) ;
+   $seqout = Bio::SeqIO->new ('format' => 'fasta',
+			      -fh => \* STDOUT);
 
    while( $seq = $seqio->next_seq ) {
         $seqout->write_seq($seq);
    }
 
-
 =head1 DESCRIPTION
 
-This makes a biocorba PrimarySeqIterator object "look like" a SeqIO 
+This makes a biocorba PrimarySeqIterator object "look like" a SeqIO
 input. It starts by using a file with the ior of the CORBA object in
-it. 
+it.
 
 =head1 FEEDBACK
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bio.perl.org          - General discussion
-  bioperl-guts-l@bio.perl.org     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org                  - General Bioperl discussion
+  biocorba-l@biocorba.org                - General Biocorba discussion
+  http://www.bioperl.org/MailList.html   - About the bioperl mailing list
+  http://www.biocorba.org/MailList.shtml - About the biocorba mailing list
 
 =head2 Reporting Bugs
 
@@ -66,9 +66,7 @@ The rest of the documentation details each of the object methods. Internal metho
 
 =cut
 
-
 # Let the code begin...
-
 
 package Bio::SeqIO::biocorba;
 use vars qw($AUTOLOAD @ISA);
@@ -78,47 +76,41 @@ use strict;
 
 use Bio::SeqIO;
 use Bio::CorbaClient::ORB;
-use Bio::CorbaClient::PrimarySeqIterator;
 
 @ISA = qw(Bio::SeqIO);
 
 # we have to chain back to the new in SeqIO and then do our 
 # own messing around to check that the file is ok.
 
-use Bio::CorbaClient::ORB;
+sub _initialize {
+    my ($self,@args) = @_;
 
-sub _new {
-    my ($class,@args) = @_;
-
-    my $self = Bio::SeqIO->new(@args);
-
-    # rebless into us
-
-    bless $self,$class;
-
+    $self->SUPER::_initialize(@args);
+    
     # check that we can actually bind to the CORBA object now
-
     my $orb = Bio::CorbaClient::ORB->get_orb();
-
-    my $ior = $self->_readline;
-    chomp $ior;
-
-    my $corbaref = $orb->string_to_object($ior);
-
-    if( ! ref $corbaref || ! $corbaref->isa('org::biocorba::PrimarySeqIterator') ) {
-	$self->throw("Unable to bind to (supposed) ior in biocorba file");
+    my ($iterator) = $self->_rearrange([qw(ITERATOR)],@args);
+    
+    if( ! defined $iterator ) {
+	my $ior = $self->_readline;
+	chomp $ior;	
+	my $corbaref = $orb->string_to_object($ior);
+	if( $corbaref->isa('org::biocorba::PrimarySeqIterator') ) {
+	    $iterator = $corbaref;
+	} elsif( $corbaref->isa('org::biocorba::PrimarySeqDB') ) {
+	    $iterator = $corbaref->get_PrimarySeqVector->iterator();
+	} else {
+	    $self->throw("Unable to bind to (supposed) ior in biocorba file");
+	}
     }
-
-    my $iterator = Bio::CorbaClient::PrimarySeqIterator->new($corbaref);
- 
     $self->iterator($iterator);
-
     # ready to rock and roll!
+    return 1;
 }
 
 sub next_seq {
-    my $self;
-    my $pseq = $self->iterator->next_primary_seq();
+    my ($self) = @_;
+    my $pseq = $self->iterator->next();
     if( ! defined $pseq ) {
 	return undef;
     }
@@ -131,10 +123,8 @@ sub next_seq {
 
 sub next_primary_seq {
     my $self;
-
-    return $self->iterator->next_primary_seq();
+    return $self->iterator->next();
 }
-
 
 =head2 iterator
 

@@ -26,20 +26,20 @@ available within the Bioperl framework.  It does not have to do a great deal...
 
 =head2 Mailing Lists
 
-User feedback is an integral part of the evolution of this
-and other Bioperl modules. Send your comments and suggestions preferably
- to one of the Bioperl mailing lists.
-Your participation is much appreciated.
+User feedback is an integral part of the evolution of this and other
+Bioperl modules. Send your comments and suggestions preferably to one
+of the Bioperl mailing lists.  Your participation is much appreciated.
 
-  bioperl-l@bio.perl.org          - General discussion
-  bioperl-guts-l@bio.perl.org     - Technically-oriented discussion
-  http://bio.perl.org/MailList.html             - About the mailing lists
+  bioperl-l@bioperl.org                  - General Bioperl discussion
+  biocorba-l@biocorba.org                - General Biocorba discussion
+  http://www.bioperl.org/MailList.html   - About the bioperl mailing list
+  http://www.biocorba.org/MailList.shtml - About the biocorba mailing list
 
 =head2 Reporting Bugs
 
 Report bugs to the Bioperl bug tracking system to help us keep track
- the bugs and their resolution.
- Bug reports can be submitted via email or the web:
+the bugs and their resolution.  Bug reports can be submitted via email
+or the web:
 
   bioperl-bugs@bio.perl.org
   http://bio.perl.org/bioperl-bugs/
@@ -52,7 +52,8 @@ Describe contact details here
 
 =head1 APPENDIX
 
-The rest of the documentation details each of the object methods. Internal methods are usually preceded with a _
+The rest of the documentation details each of the object
+methods. Internal methods are usually preceded with a _
 
 =cut
 
@@ -64,7 +65,7 @@ use strict;
 use Bio::CorbaClient::Base;
 use Bio::CorbaClient::Seq;
 use Bio::CorbaClient::PrimarySeq;
-use Bio::CorbaClient::PrimarySeqIterator;
+use Bio::SeqIO;
 use Bio::DB::SeqI;
 
 @ISA = qw(Bio::CorbaClient::Base Bio::DB::SeqI);
@@ -86,7 +87,7 @@ sub get_Seq_by_id {
     my ($self,$id) = shift;    
     my $corbaref = $self->corbaref->get_Seq($id);
     return Bio::CorbaClient::Seq->new($corbaref) if( defined $corbaref );
-    throw org::biocorba::seqcore::UnableToProcess(reason=>"DB::Biocorba could not find a seq for id=$id\n"); 
+    $self->throw("DB::Biocorba could not find a seq for id=$id\n"); 
     return undef;
 }
 
@@ -125,10 +126,18 @@ sub get_Seq_by_acc {
 =cut
 
 sub get_PrimarySeq_stream{
-   my ($self,@args) = @_;   
-# I'm not sure this will work?  
-   return Bio::CorbaClient::PrimarySeqIterator->new
-       ($self->corbaref->make_PrimarySeqIterator);
+   my ($self) = @_;   
+# I'm not sure this will work?
+   eval { 
+       my $vectorref = $self->corbaref->get_PrimarySeqVector;
+       my $seqioref = new Bio::SeqIO('-format' => 'biocorba',
+				     '-iterator' => $vectorref->iterator());
+       return $seqioref;
+   };
+   if( $@ ) {
+       $self->throw("get_PrimarySeq_stream failed -- $@\n"); 
+   }
+   
 }
 
 =head2 get_all_primary_ids
@@ -150,11 +159,11 @@ sub get_PrimarySeq_stream{
 sub get_all_primary_ids{
     my ($self,@args) = @_;   
    if( ! $self->corbaref->isa('org::biocorba::seqcore::SeqDB')) {
-       $self->throw("This is not a org::biocorba::seqcore::SeqDB so get_all_primary_ids is not supported\n");
        return ();
    } 
-    my $ids = $self->corbaref->get_primaryidList();
-    return @$ids;
+    $self->throw("method get_all_primary_ids is not supported at this time");
+#    my $ids = $self->corbaref->get_primaryidList();
+#    return @$ids;
 }
 
 
