@@ -197,6 +197,12 @@ sub species {
     return undef;
 }
 
+sub description {
+  my $self= shift;
+
+  return $self->corbaref->get_description();
+}
+
 
 =head2 display_id
 
@@ -270,8 +276,8 @@ sub version {
 =cut
 
 sub desc {
-    # no support for this in current implementation
-    return '';
+  my $self = shift;
+  return $self->description();
 }
 
 
